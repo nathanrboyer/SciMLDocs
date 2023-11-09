@@ -3,6 +3,7 @@ steps:
     env:
       # This is a child pipeline, so we MUST put this here to inherit privileges from the parent pipeline.
       BUILDKITE_PLUGIN_CRYPTIC_BASE64_SIGNED_JOB_ID_SECRET: ${BUILDKITE_PLUGIN_CRYPTIC_BASE64_SIGNED_JOB_ID_SECRET?}
+      BUILDKITE_GIT_CLONE_FLAGS: "--depth=1"
 
     plugins:
       - staticfloat/cryptic#v2:
@@ -24,6 +25,8 @@ steps:
             - "/cache:/cache"
 
     command: |
+      git remote set-branches origin 'gh-pages'
+      git fetch --depth=1 origin gh-pages
       julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       git config user.name buildkite
       git config user.email julia@buildkite.com
